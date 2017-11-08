@@ -1,0 +1,28 @@
+{
+  "name": "sort-imports",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "fs": "0.0.1-security",
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tneumueller/import-order-fixer.git"
+  },
+  "author": "Thomas Neumüller",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tneumueller/import-order-fixer/issues"
+  },
+  "homepage": "https://github.com/tneumueller/import-order-fixer#readme"
+}
