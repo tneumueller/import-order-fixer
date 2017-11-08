@@ -35,7 +35,11 @@ class File {
     }
 
     save(groupRules) {
-        return fs.writeFile(this.path + (this.params.unsafe ? '' : '.cleaned'), compose(this.data, groupRules))
+        let parts = this.path.split('.')
+        let ending = parts.pop()
+
+        const filename = this.params.unsafe ? this.path : `${parts.join('.')}.cleaned.${ending}`
+        return fs.writeFile(filename, compose(this.data, groupRules))
     }
 }
 
@@ -161,6 +165,8 @@ function compose(data, groups) {
         const _g = _find(data.imports.groups, { name: g.name })
         if (!_g) return
 
+        if (_g.comment && _g.imports.length > 0) str += '// ' + _g.comment + '\n'
+
         _g.imports.forEach(i => {
             if (i.imported) {
                 str += `import { ${ i.imported.join(', ') } } from '${ i.from }'\n`
@@ -173,7 +179,7 @@ function compose(data, groups) {
         if (g.imports.length > 0) str += '\n'
     })
     str += '\n'
-    str += data.code
+    str += data.code + '\n'
 
     return str
 }

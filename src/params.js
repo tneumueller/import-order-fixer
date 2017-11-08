@@ -10,7 +10,7 @@ module.exports.parse = function() {
 
         const paramsConfig = {
             recursive: jParams.includes('-r'),
-            unsafe: jParams.includes('-u'),
+            unsafe: jParams.includes('-u') || jParams.includes('--unsafe'),
             files: jParams.filter(p => fs.existsSync(p) && fs.lstatSync(p).isFile()),
             directories: jParams.filter(p => fs.existsSync(p) && fs.lstatSync(p).isDirectory())
         }
