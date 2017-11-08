@@ -169,7 +169,9 @@ function compose(data, groups) {
 
         _g.imports.forEach(i => {
             if (i.imported) {
-                str += `import { ${ i.imported.join(', ') } } from '${ i.from }'\n`
+                let line = `import { ${ i.imported.join(', ') } } from '${ i.from }'\n`
+                if (line.length > 120) line = `import {\n  ${ i.imported.join(',\n  ') }\n} from '${ i.from }'\n`
+                str += line
             } else if (i.alias) {
                 str += `import ${ i.alias } from '${ i.from }'\n`
             } else {
