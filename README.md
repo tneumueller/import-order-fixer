@@ -2,6 +2,7 @@
 A configurable NodeJs script that reorders import statements
 
 ## Example config
+safe in `config.json`
 
 ```json
 {
