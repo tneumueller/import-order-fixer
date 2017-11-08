@@ -5,8 +5,9 @@ const _filter = require('lodash/filter')
 const _sortBy = require('lodash/sortBy')
 
 class File {
-    constructor(path) {
+    constructor(path, params) {
         this.path = path
+        this.params = params
     }
 
     analyze() {
@@ -22,6 +23,10 @@ class File {
         return new Promise((resolve, reject) => {
             this.analyze()
                 .then(imports => {
+                    if (!imports) {
+                        return reject()
+                    }
+
                     this.data = mergeImports(imports)
                     this.data.imports = groupImports(this.data.imports, groups)
                     resolve(this)
@@ -30,25 +35,48 @@ class File {
     }
 
     save(groupRules) {
-        return fs.writeFile(this.path + '.cleaned', compose(this.data, groupRules))
+        return fs.writeFile(this.path + (this.params.unsafe ? '' : '.cleaned'), compose(this.data, groupRules))
     }
 }
 
 function analyze(data) {
-    const rxImport = /import\s+(\{((\s*\w+\s*,?)*)\}\s+from\s+)?(['"`])(.*)(['"`])/g
+    const rxImport = /import\s+((\{((\s*\w+\s*,?)*)\}|\* as \w+)\s+from\s+)?(['"`])(.*)(['"`])/g
     let imports = []
+    let aliasImports = []
+    let completeFileImports = []
+
     let m, lastMatch
+    let foundOne = false
 
     while (m = rxImport.exec(data)) {
+        foundOne = true
+
         lastMatch = m
         if (m.index === rxImport.lastIndex) rxImport.lastIndex++
 
-        imports.push({
-            imported: m[2]
-                .split(',')
-                .map(x => x.trim()),
-            from: m[5].trim()
-        })
+        if (!m[2]) { // import 'package'
+            completeFileImports.push({
+                imported: null,
+                from: m[6].trim()
+            })
+        } else if (!m[3]) { // import * as alias from 'package'
+            aliasImports.push({
+                imported: null,
+                alias: m[2],
+                from: m[6].trim()
+            })
+        } else { // import { Func1, Func2 } from 'package'
+            imports.push({
+                imported: m[3]
+                    .split(',')
+                    .map(x => x.trim()),
+                from: m[6].trim()
+            })
+        }
+    }
+
+    if (!foundOne) {
+        return null
     }
 
     let importsEndPos = lastMatch.index + lastMatch[0].length
@@ -56,6 +84,11 @@ function analyze(data) {
         .substr(importsEndPos, data.length - importsEndPos)
         .trim()
 
+    imports = imports
+        .concat(...aliasImports)
+        .concat(...completeFileImports)
+
+    console.log(imports)
 
     return {
         imports,
@@ -97,8 +130,8 @@ function mergeImports(file) {
             .forEach(d => {
                 let _i = {
                     imported: _sortBy([
-                        ...i.imported,
-                        ...d.imported
+                        ...(i.imported || []),
+                        ...(d.imported || [])
                     ]),
                     from: i.from
                 }
@@ -123,7 +156,15 @@ function compose(data, groups) {
         const _g = _find(data.imports.groups, { name: g.name })
         if (!_g) return
 
-        _g.imports.forEach(i => str += `import { ${ i.imported.join(', ') } } from '${ i.from }'\n`)
+        _g.imports.forEach(i => {
+            if (i.imported) {
+                str += `import { ${ i.imported.join(', ') } } from '${ i.from }'\n`
+            } else if (i.alias) {
+                str += `import ${ i.alias } from '${ i.from }'\n`
+            } else {
+                str += `import '${ i.from }'\n`
+            }
+        })
         if (g.imports.length > 0) str += '\n'
     })
     str += '\n'

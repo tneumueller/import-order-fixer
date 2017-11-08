@@ -10,8 +10,9 @@ module.exports.parse = function() {
 
         const paramsConfig = {
             recursive: jParams.includes('-r'),
-            files: jParams.filter(p => fs.lstatSync(p).isFile()),
-            directories: jParams.filter(p => fs.lstatSync(p).isDirectory())
+            unsafe: jParams.includes('-u'),
+            files: jParams.filter(p => fs.existsSync(p) && fs.lstatSync(p).isFile()),
+            directories: jParams.filter(p => fs.existsSync(p) && fs.lstatSync(p).isDirectory())
         }
         //console.log(paramsConfig)
 

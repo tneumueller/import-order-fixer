@@ -32,9 +32,12 @@ function processFileOrDirectory(f) {
     const finfo = fs.lstatSync(f)
 
     if (finfo.isFile()) {
-        const file = new File(f)
-        file.cleanUp(groups)
-            .then(f => f.save(groups))
+        const file = new File(f, params)
+
+        let _groups = JSON.parse(JSON.stringify(groups))
+        file.cleanUp(_groups)
+            .then(f => f.save(_groups))
+            .catch(() => {})
     } else {
         fs.readdirSync(f).forEach(file => {
             processFileOrDirectory(f + '/' + file)
