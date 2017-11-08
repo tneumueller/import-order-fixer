@@ -124,7 +124,12 @@ function mergeImports(file) {
     file.imports.forEach(i => {
         let duplicates = file.imports.filter(imp => {
             //console.log(i.from, imp.from, i.from === imp.from, i !== imp)
-            return i.from === imp.from && i !== imp
+            return i.from === imp.from
+                && i !== imp
+                && !i.alias
+                && !imp.alias
+                && i.imported
+                && imp.imported
         })
         duplicates
             .forEach(d => {
