@@ -1,4 +1,7 @@
 {
+    "files": [
+        ".*\\.ts"
+    ],
     "sort-order": [
         "angular",
         "vendor",

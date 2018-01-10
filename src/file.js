@@ -44,7 +44,7 @@ class File {
 }
 
 function analyze(data) {
-    const rxImport = /import\s+((\{((\s*\w+\s*,?)*)\}|\* as \w+)\s+from\s+)?(['"`])(.*)(['"`])/g
+    const rxImport = /import\s+((\{((\s*\w+\s*,?)*)\}|\* as \w+)\s+from\s+)?(['"`])(.*)(['"`]);?/g
     let imports = []
     let aliasImports = []
     let completeFileImports = []

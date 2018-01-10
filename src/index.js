@@ -34,6 +34,19 @@ function processFileOrDirectory(f) {
     if (finfo.isFile()) {
         const file = new File(f, params)
 
+        if (config.files) {
+            let matchesAny = false
+            config.files.forEach(frx => {
+                if (f.match(frx) !== null) {
+                    matchesAny = true
+                }
+            })
+            if (!matchesAny) {
+                console.log(`File "${f}" was skipped`)
+                return
+            }
+        }
+
         let _groups = JSON.parse(JSON.stringify(groups))
         file.cleanUp(_groups)
             .then(f => f.save(_groups))

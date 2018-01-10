@@ -14,5 +14,8 @@ module.exports.load = function() {
                     reject(err)
                 }
             })
+            .catch(err => {
+                console.log('Config file "imports.json" does not exist in this folder. Aborting.')
+            })
     })
 }
