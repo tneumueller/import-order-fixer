@@ -6,6 +6,9 @@ safe in `config.json`
 
 ```json
 {
+    "files": [
+        ".*\\.ts"
+    ],
     "sort-order": [
         "angular",
         "vendor",
