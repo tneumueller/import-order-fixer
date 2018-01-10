@@ -2,7 +2,7 @@
 A configurable NodeJs script that reorders import statements
 
 ## Example config
-safe in `config.json`
+The following JSON object is an example for how the config file could look like. This one applies to Angular2 and Typescript.  Safe it inside the project folder and with the name `imports.json`
 
 ```json
 {
