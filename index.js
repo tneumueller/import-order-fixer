@@ -1,9 +1,9 @@
 const fs = require('fs')
 const Promise = require('bluebird')
 
-const Config = require('./config')
-const Params = require('./params')
-const File = require('./file')
+const Config = require('./src/config')
+const Params = require('./src/params')
+const File = require('./src/file')
 
 var configs, params
 
