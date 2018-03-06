@@ -1,5 +1,14 @@
-# import-order-fixer
+# sort-imports
 A configurable NodeJs script that reorders import statements
+
+## Install
+`npm i -g tneumueller/sort-imports`
+
+## Run
+Run `sort-imports` with the following parameters:
+- `-r`: Recursive
+- `-s --save`: Save-Mode, no files will be overwritten but instead receive the postfix '.cleaned'
+- `<directory>`: One or more directories, for which the reordering should be performed
 
 ## Config
 
