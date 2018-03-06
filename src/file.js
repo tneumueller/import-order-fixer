@@ -164,13 +164,13 @@ function compose(data, groups, config) {
     let str = ''
 
     config.order.forEach(o => {
-        const _g = _find(data.imports.groups, { name: o })
+        const g = _find(data.imports.groups, { name: o })
 
-        if (!_g) return
+        if (!g) return
 
-        if (_g.comment && _g.imports.length > 0) str += '// ' + _g.comment + '\n'
+        if (g.comment && g.imports.length > 0) str += '// ' + g.comment + '\n'
 
-        _g.imports.forEach(i => {
+        g.imports.forEach(i => {
             if (i.imported) {
                 let line = `import { ${ i.imported.join(', ') } } from '${ i.from }'\n`
                 if (line.length > 120) line = `import {\n  ${ i.imported.join(',\n  ') }\n} from '${ i.from }'\n`
@@ -181,9 +181,8 @@ function compose(data, groups, config) {
                 str += `import '${ i.from }'\n`
             }
         })
-        if (_g.imports.length > 0) str += '\n'
+        if (g.imports.length > 0) str += '\n'
     })
-    str += '\n'
     str += data.code + '\n'
 
     return str
