@@ -4,7 +4,7 @@
   "description": "",
   "bin": {
     "sort-imports": "index.js"
-  }
+  },
   "directories": {
     "example": "examples"
   },
