@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "description": "",
   "bin": {
-    "sort-imports": "./index.js"
+    "sort-imports": "node ./index.js"
   },
   "directories": {
     "example": "examples"
