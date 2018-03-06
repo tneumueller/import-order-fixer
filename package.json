@@ -2,7 +2,9 @@
   "name": "sort-imports",
   "version": "0.2.0",
   "description": "",
-  "main": "index.js",
+  "bin": {
+    "sort-imports": "index.js"
+  }
   "directories": {
     "example": "examples"
   },
@@ -13,7 +15,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "sort-imports examples"
   },
   "repository": {
     "type": "git",
