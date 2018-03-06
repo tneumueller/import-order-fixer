@@ -39,17 +39,25 @@ function processFileOrDirectory(config, f) {
 
     if (finfo.isFile()) {
         const file = new File(f, params, config)
+        let include = false
 
-        if (config.files) {
-            let matchesAny = false
-            config.files.forEach(frx => {
+        if (config.include) {
+            config.include.forEach(frx => {
                 if (f.match(frx) !== null) {
-                    matchesAny = true
+                    include = true
                 }
             })
-            if (!matchesAny) {
-                return
-            }
+        }
+        if (config.exclude) {
+            config.exclude.forEach(erx => {
+                if (f.match(erx) !== null) {
+                    include = false
+                }
+            })
+        }
+        if (!include) {
+            console.log('excluded', f)
+            return
         }
 
         let _groups = JSON.parse(JSON.stringify(groups))
