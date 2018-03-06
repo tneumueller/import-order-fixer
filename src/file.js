@@ -5,9 +5,10 @@ const _filter = require('lodash/filter')
 const _sortBy = require('lodash/sortBy')
 
 class File {
-    constructor(path, params) {
+    constructor(path, params, config) {
         this.path = path
         this.params = params
+        this.config = config
     }
 
     analyze() {
@@ -38,8 +39,9 @@ class File {
         let parts = this.path.split('.')
         let ending = parts.pop()
 
-        const filename = this.params.unsafe ? this.path : `${parts.join('.')}.cleaned.${ending}`
-        return fs.writeFile(filename, compose(this.data, groupRules))
+        const filename = !this.params.safe ? this.path : `${parts.join('.')}.cleaned.${ending}`
+        console.log(`changed '${filename}'`)
+        return fs.writeFile(filename, compose(this.data, groupRules, this.config))
     }
 }
 
@@ -92,7 +94,7 @@ function analyze(data) {
         .concat(...aliasImports)
         .concat(...completeFileImports)
 
-    console.log(imports)
+    // console.log(imports)
 
     return {
         imports,
@@ -158,11 +160,12 @@ function mergeImports(file) {
     return file
 }
 
-function compose(data, groups) {
+function compose(data, groups, config) {
     let str = ''
 
-    groups.forEach(g => {
-        const _g = _find(data.imports.groups, { name: g.name })
+    config.order.forEach(o => {
+        const _g = _find(data.imports.groups, { name: o })
+
         if (!_g) return
 
         if (_g.comment && _g.imports.length > 0) str += '// ' + _g.comment + '\n'
@@ -178,7 +181,7 @@ function compose(data, groups) {
                 str += `import '${ i.from }'\n`
             }
         })
-        if (g.imports.length > 0) str += '\n'
+        if (_g.imports.length > 0) str += '\n'
     })
     str += '\n'
     str += data.code + '\n'

@@ -2,7 +2,7 @@
     "files": [
         ".*\\.ts"
     ],
-    "sort-order": [
+    "order": [
         "angular",
         "vendor",
         "modules",

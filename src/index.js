@@ -5,34 +5,38 @@ const Config = require('./config')
 const Params = require('./params')
 const File = require('./file')
 
-var config, params, groups;
+var configs, params
 
-Promise.all([
-    Config.load(),
-    Params.parse()
-]).then(res => {
-        config = res[0]
-        params = res[1]
-        main()
+Params.parse()
+    .then(p => {
+        params = p
+        return Config.load(p.directories)
+            .then(c => {
+                configs = c
+                main()
+            })
     })
-    .catch(e => console.error(e))
 
 function main() {
     processInput()
 }
 
 function processInput() {
-    groups = getGroupRules()
-
-    params.files.forEach(f => processFileOrDirectory(f))
-    params.directories.forEach(d => processFileOrDirectory(d))
+    params.directories.forEach(d => {
+        processFileOrDirectory(configs[d], d)
+    })
 }
 
-function processFileOrDirectory(f) {
+function processFileOrDirectory(config, f) {
+    if (!f || !config) {
+        return
+    }
+
+    const groups = getGroupRules(config)
     const finfo = fs.lstatSync(f)
 
     if (finfo.isFile()) {
-        const file = new File(f, params)
+        const file = new File(f, params, config)
 
         if (config.files) {
             let matchesAny = false
@@ -42,7 +46,6 @@ function processFileOrDirectory(f) {
                 }
             })
             if (!matchesAny) {
-                console.log(`File "${f}" was skipped`)
                 return
             }
         }
@@ -50,15 +53,16 @@ function processFileOrDirectory(f) {
         let _groups = JSON.parse(JSON.stringify(groups))
         file.cleanUp(_groups)
             .then(f => f.save(_groups))
-            .catch(() => {})
+            .catch(() => {
+            })
     } else {
         fs.readdirSync(f).forEach(file => {
-            processFileOrDirectory(f + '/' + file)
+            processFileOrDirectory(config, f + '/' + file)
         })
     }
 }
 
-function getGroupRules() {
+function getGroupRules(config) {
     let groups = []
 
     for (let type in config.types) {
