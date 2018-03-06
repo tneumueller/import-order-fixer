@@ -1,5 +1,5 @@
 {
-  "name": "sort-imports,",
+  "name": "sort-imports",
   "version": "0.2.0",
   "description": "",
   "main": "index.js",
@@ -17,12 +17,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tneumueller/import-order-fixer.git"
+    "url": "git+https://github.com/tneumueller/sort-imports.git"
   },
   "author": "Thomas Neumüller",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/tneumueller/import-order-fixer/issues"
+    "url": "https://github.com/tneumueller/sort-imports/issues"
   },
-  "homepage": "https://github.com/tneumueller/import-order-fixer#readme"
+  "homepage": "https://github.com/tneumueller/soft-imports#readme"
 }
