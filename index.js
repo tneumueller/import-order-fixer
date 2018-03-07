@@ -9,6 +9,7 @@ const File = require('./src/file')
 
 var configs, params
 
+
 Params.parse()
     .then(p => {
         params = p
@@ -48,8 +49,6 @@ function processFileOrDirectory(config, f, forceInclude = false) {
         let _groups = JSON.parse(JSON.stringify(groups))
         file.cleanUp(_groups)
             .then(f => f.save(_groups))
-            .catch(() => {
-            })
     } else {
         if (!forceInclude && !include(f, config, true)) {
             console.log('exclude file', f)

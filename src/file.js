@@ -25,27 +25,37 @@ class File {
             this.analyze()
                 .then(imports => {
                     if (!imports) {
-                        return reject()
+                        return reject(new Error('Error during import analization'))
                     }
 
                     this.data = mergeImports(imports)
                     this.data.imports = groupImports(this.data.imports, groups)
                     resolve(this)
                 })
-            })
+        })
     }
 
     save(groupRules) {
         let parts = this.path.split('.')
         let ending = parts.pop()
-
         const filename = !this.params.safe ? this.path : `${parts.join('.')}.cleaned.${ending}`
-        console.log(`changed '${filename}'`)
-        return fs.writeFile(filename, compose(this.data, groupRules, this.config))
+
+        try {
+            const data = compose(this.data, groupRules, this.config)
+            return fs.writeFile(filename, data, () => {
+                console.log(`changed '${filename}'`)
+            })
+        } catch (err) {
+            console.log(err)
+        }
     }
 }
 
 function analyze(data) {
+    if (!data) {
+        throw new Error('Data is undefined')
+    }
+
     const rxImport = /import\s+((\{((\s*\w+\s*,?)*)\}|\* as \w+)\s+from\s+)?(['"`])(.*)(['"`]);?/g
     let imports = []
     let aliasImports = []
@@ -163,29 +173,46 @@ function mergeImports(file) {
 function compose(data, groups, config) {
     let str = ''
 
-    config.order.forEach((o, gIndex) => {
-        const g = _find(data.imports.groups, { name: o })
-
-        if (!g) return
-
-        if (g.comment && g.imports.length > 0) str += '// ' + g.comment + '\n'
-
-        g.imports.forEach(i => {
-            if (i.imported) {
-                let line = `import { ${ i.imported.join(', ') } } from '${ i.from }'\n`
-                if (line.length > 120) line = `import {\n  ${ i.imported.join(',\n  ') }\n} from '${ i.from }'\n`
-                str += line
-            } else if (i.alias) {
-                str += `import ${ i.alias } from '${ i.from }'\n`
-            } else {
-                str += `import '${ i.from }'\n`
-            }
-        })
-        if (g.imports.length > 0 && gIndex < config.order.length - 1) {
-            const afterGroup = config.spacing ? (config.spacing.afterGroup === undefined ? 1 : config.spacing.afterGroup) : 1
-            str += Array(afterGroup).fill('\n').join('')
-        }
+    let orderedGroups = []
+    config.order.forEach(o => {
+        orderedGroups.push(_find(data.imports.groups, { name: o }))
     })
+    orderedGroups = orderedGroups
+        .filter(g => g.imports.length > 0)
+
+    orderedGroups
+        .forEach((g, gIndex) => {
+            let groupStr = ''
+
+            if (g.comment && g.imports.length > 0) {
+                groupStr += '// ' + g.comment + '\n'
+            }
+
+            g.imports.forEach(i => {
+                if (i.imported) {
+                    let line = `import { ${ i.imported.join(', ') } } from '${ i.from }'\n`
+                    if (line.length > 120) line = `import {\n  ${ i.imported.join(',\n  ') }\n} from '${ i.from }'\n`
+                    groupStr += line
+                } else if (i.alias) {
+                    groupStr += `import ${ i.alias } from '${ i.from }'\n`
+                } else {
+                    groupStr += `import '${ i.from }'\n`
+                }
+            })
+
+            const configEnvironment = {
+                $first: gIndex === 0,
+                $last: gIndex === orderedGroups.length - 1,
+                $size: orderedGroups.length
+            }
+            const spacing = getSpacing(g, configEnvironment)
+
+            groupStr =
+                Array(spacing.before).fill('\n').join('')
+                + groupStr
+                + Array(spacing.after).fill('\n').join('')
+            str += groupStr
+        })
 
     const afterImports = config.spacing ? (config.spacing.afterImports === undefined ? 1 : config.spacing.afterImports) : 1
     str += Array(afterImports).fill('\n').join('')
@@ -193,6 +220,71 @@ function compose(data, groups, config) {
     str += data.code + '\n'
 
     return str
+}
+
+function getSpacing(group, environment) {
+    const spacing = {
+        before: 0,
+        after: 0
+    }
+
+    if (group.space) {
+        if (typeof group.space === 'number') {
+            after = group.space
+        } else if (typeof group.space === 'object') {
+            ([
+                'before',
+                'after'
+            ]).forEach(pos => {
+                if (group.space[pos]) {
+                    switch (typeof group.space[pos]) {
+                        case 'number':
+                            if (evalCondition(group.space[pos].if, environment)) {
+                                spacing[pos] = group.space[pos]
+                            }
+                            break
+                        case 'object':
+                            if (evalCondition(group.space[pos].if, environment)) {
+                                spacing[pos] = group.space[pos].size || 0
+                            }
+                            break
+                    }
+                }
+            })
+        }
+    }
+
+    return spacing
+}
+
+function evalCondition(cond, env) {
+    cond = cond.trim()
+
+    if (cond === 'true') return true
+    if (cond === 'false') return false
+
+    const boolExpr = /^(!)?(\$[A-Za-z]+)$/
+    const compareExpr = /^(\$[A-Za-z]+)\s*(<|<=|>|>=|==)\s*([0-9]+)$/
+
+    let m
+    if (m = boolExpr.exec(cond)) {
+        const neg = m[1]
+        const _var = env[m[2]]
+        if (_var === undefined) {
+            throw new Error(`Undefined variable '${m[2]}'`)
+        }
+        return neg ? !_var : !!_var
+    } else if (m = compareExpr.exec(cond)) {
+        const _var = env[m[1]]
+        if (_var === undefined) {
+            throw new Error(`Undefined variable '${m[1]}'`)
+        }
+        const op = m[2]
+        const val = m[3]
+        return eval(`${_var}${op}${val}`)
+    } else {
+        throw new Error(`Invalid expression: "${cond}"`)
+    }
 }
 
 module.exports = File
