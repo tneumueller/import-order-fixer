@@ -12,8 +12,12 @@ Run `sort-imports` with the following parameters:
 
 ## Config
 
-- `files`: Array of regex strings the filenames are tested against
+- `include`: Array of regex strings the filenames are tested against. Files are excluded unless specified.
+- `exclude`: Array of regex strings the filenames are tested against. Directories are included unless specified.
 - `order`: Array of strings containing the names of types. The import groups will be sorted in this manner
+- `spacing`: Object
+  - `afterImports`: Number of empty lines to insert after imports and before the rest of the code
+  - `afterGroup`: Number of empty lines to insert after each import group
 - `types`: Array of objects with the following properties
   - `matches`: Array of regex strings the import paths will be tested against
   - `comment`: Comment, which will be added in the line before the import group (optional)
@@ -23,51 +27,34 @@ The following JSON object is an example for how the config file could look like.
 
 ```json
 {
-    "files": [
-        ".*\\.ts"
-    ],
-    "order": [
-        "angular",
-        "vendor",
-        "modules",
-        "components",
-        "app",
-        "any"
-    ],
-    "types": {
-        "angular": {
-            "matches": [
-                "@angular",
-                "@ngrx",
-                "rxjs"
-            ]
-        },
-        "app": {
-            "matches": [
-                "^app\\/.*"
-            ]
-        },
-        "vendor": {
-            "matches": [
-                "^[^.]"
-            ]
-        },
-        "modules": {
-            "matches": [
-                "..?\\/.*\\.module(.(ts|js))?"
-            ]
-        },
-        "components": {
-            "matches": [
-                "..?\\/.*\\.component(.(ts|js))?"
-            ]
-        },
-        "any": {
-            "matches": [
-                ".*"
-            ]
-        }
+  "include": ["\\.ts$"],
+  "exclude": ["node_modules"],
+  "order": ["angular", "vendor", "modules", "components", "app", "any"],
+  "spacing": {
+    "afterImports": 1,
+    "afterGroup": 0
+  },
+  "types": {
+    "angular": {
+      "matches": ["@angular", "@ngrx", "rxjs"]
+    },
+    "app": {
+      "matches": ["^app\\/"]
+    },
+    "vendor": {
+      "matches": ["^[^.]"]
+    },
+    "modules": {
+      "matches": ["\\.module(.(ts|js))?"]
+    },
+    "components": {
+      "matches": ["\\.component(.(ts|js))?"]
+    },
+    "any": {
+      "matches": [".*"]
     }
+  }
 }
+
 
 ```
