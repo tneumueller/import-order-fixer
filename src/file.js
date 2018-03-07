@@ -206,7 +206,7 @@ function compose(data, groups, config) {
                 $size: g.imports.length,
                 $count: orderedGroups.length
             }
-            const spacing = getSpacing(g, configEnvironment)
+            const spacing = getSpacing(config, g, configEnvironment)
 
             groupStr =
                 Array(spacing.before).fill('\n').join('')
@@ -215,7 +215,7 @@ function compose(data, groups, config) {
             str += groupStr
         })
 
-    const afterImports = config.spacing ? (config.spacing.afterImports === undefined ? 1 : config.spacing.afterImports) : 1
+    const afterImports = config.space ? (config.space.afterImports === undefined ? 1 : config.space.afterImports) : 1
     str += Array(afterImports).fill('\n').join('')
 
     str += data.code + '\n'
@@ -223,11 +223,8 @@ function compose(data, groups, config) {
     return str
 }
 
-function getSpacing(group, environment) {
-    const spacing = {
-        before: 0,
-        after: 0
-    }
+function getSpacing(config, group, environment) {
+    const spacing = { }
 
     if (group.space) {
         if (typeof group.space === 'number') {
@@ -255,11 +252,15 @@ function getSpacing(group, environment) {
         }
     }
 
-    return spacing
+    return {
+        before: spacing.before || 0,
+        after: spacing.after || config.space.afterGroup || 0
+    }
 }
 
-function evalCondition(cond, env) {
+function evalCondition( cond, env) {
     cond = cond.trim()
+    // console.log('### COND', cond, env)
 
     if (cond === 'true') return true
     if (cond === 'false') return false
