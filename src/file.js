@@ -163,7 +163,7 @@ function mergeImports(file) {
 function compose(data, groups, config) {
     let str = ''
 
-    config.order.forEach(o => {
+    config.order.forEach((o, gIndex) => {
         const g = _find(data.imports.groups, { name: o })
 
         if (!g) return
@@ -181,8 +181,15 @@ function compose(data, groups, config) {
                 str += `import '${ i.from }'\n`
             }
         })
-        if (g.imports.length > 0) str += '\n'
+        if (g.imports.length > 0 && gIndex < config.order.length - 1) {
+            const afterGroup = config.spacing ? (config.spacing.afterGroup === undefined ? 1 : config.spacing.afterGroup) : 1
+            str += Array(afterGroup).fill('\n').join('')
+        }
     })
+
+    const afterImports = config.spacing ? (config.spacing.afterImports === undefined ? 1 : config.spacing.afterImports) : 1
+    str += Array(afterImports).fill('\n').join('')
+
     str += data.code + '\n'
 
     return str

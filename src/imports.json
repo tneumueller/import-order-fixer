@@ -5,6 +5,10 @@
     "exclude": [
         "node_modules"
     ],
+    "spacing": {
+        "afterGroup": 0,
+        "afterImports": 1
+    },
     "order": [
         "angular",
         "vendor",
