@@ -25,11 +25,11 @@ function main() {
 
 function processInput() {
     params.directories.forEach(d => {
-        processFileOrDirectory(configs[d], d)
+        processFileOrDirectory(configs[d], d, true)
     })
 }
 
-function processFileOrDirectory(config, f) {
+function processFileOrDirectory(config, f, forceInclude = false) {
     if (!f || !config) {
         return
     }
@@ -38,27 +38,12 @@ function processFileOrDirectory(config, f) {
     const finfo = fs.lstatSync(f)
 
     if (finfo.isFile()) {
-        const file = new File(f, params, config)
-        let include = false
-
-        if (config.include) {
-            config.include.forEach(frx => {
-                if (f.match(frx) !== null) {
-                    include = true
-                }
-            })
-        }
-        if (config.exclude) {
-            config.exclude.forEach(erx => {
-                if (f.match(erx) !== null) {
-                    include = false
-                }
-            })
-        }
-        if (!include) {
-            console.log('excluded', f)
+        if (!forceInclude && !include(f, config, false)) {
+            console.log('exclude file', f)
             return
         }
+
+        const file = new File(f, params, config)
 
         let _groups = JSON.parse(JSON.stringify(groups))
         file.cleanUp(_groups)
@@ -66,6 +51,11 @@ function processFileOrDirectory(config, f) {
             .catch(() => {
             })
     } else {
+        if (!forceInclude && !include(f, config, true)) {
+            console.log('exclude file', f)
+            return
+        }
+
         fs.readdirSync(f).forEach(file => {
             processFileOrDirectory(config, f + '/' + file)
         })
@@ -82,4 +72,23 @@ function getGroupRules(config) {
 
     //console.log('groups', groups)
     return groups
+}
+
+function include(f, config, includeByDefault = false) {
+    let include = includeByDefault
+    if (config.include) {
+        config.include.forEach(frx => {
+            if (f.match(frx) !== null) {
+                include = true
+            }
+        })
+    }
+    if (config.exclude) {
+        config.exclude.forEach(erx => {
+            if (f.match(erx) !== null) {
+                include = false
+            }
+        })
+    }
+    return include
 }
