@@ -266,7 +266,7 @@ function evalCondition( cond, env) {
     if (cond === 'false') return false
 
     const boolExpr = /^(!)?(\$[A-Za-z]+)$/
-    const compareExpr = /^(\$[A-Za-z]+)\s*(<|<=|>|>=|==)\s*([0-9]+)$/
+    const compareExpr = /^(\$[A-Za-z]+)\s*(<|<=|>|>=|==|!=)\s*([0-9]+)$/
 
     let m
     if (m = boolExpr.exec(cond)) {
