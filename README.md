@@ -16,8 +16,8 @@ Run `sort-imports` with the following parameters:
 - `exclude`: Array of regex strings the filenames are tested against. Directories are included unless specified.
 - `order`: Array of strings containing the names of types. The import groups will be sorted in this manner
 - `spacing`: Object
-  - `afterImports`: Number of empty lines to insert after imports and before the rest of the code
-  - `afterGroup`: Number of empty lines to insert after each import group
+  - `afterImports`: Number of empty lines to insert after imports and before the rest of the code (default: 1)
+  - `afterGroup`: Number of empty lines to insert after each import group (default: 1)
 - `types`: Array of objects with the following properties
   - `matches`: Array of regex strings the import paths will be tested against
   - `comment`: Comment, which will be added in the line before the import group (optional)
