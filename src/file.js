@@ -203,7 +203,8 @@ function compose(data, groups, config) {
             const configEnvironment = {
                 $first: gIndex === 0,
                 $last: gIndex === orderedGroups.length - 1,
-                $size: orderedGroups.length
+                $size: g.imports.length,
+                $count: orderedGroups.length
             }
             const spacing = getSpacing(g, configEnvironment)
 
