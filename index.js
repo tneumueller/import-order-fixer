@@ -48,7 +48,11 @@ function processFileOrDirectory(config, f, forceInclude = false) {
 
         let _groups = JSON.parse(JSON.stringify(groups))
         file.cleanUp(_groups)
-            .then(f => f.save(_groups))
+            .then(f => {
+                if (f) {
+                    f.save(_groups)
+                }
+            })
     } else {
         if (!forceInclude && !include(f, config, true)) {
             console.log('exclude file', f)

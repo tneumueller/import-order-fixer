@@ -25,7 +25,7 @@ class File {
             this.analyze()
                 .then(imports => {
                     if (!imports) {
-                        return reject(new Error('Error during import analization'))
+                        return resolve()
                     }
 
                     this.data = mergeImports(imports)
