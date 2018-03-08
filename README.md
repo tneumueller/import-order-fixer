@@ -7,10 +7,12 @@ A configurable NodeJs script that reorders import statements
 ## Run
 Run `sort-imports` with the following parameters:
 - `-r`: Recursive
-- `-s --save`: Save-Mode, no files will be overwritten but instead receive the postfix '.cleaned'
+- `-s --save`: Save-Mode, no files will be overwritten but instead receive the postfix `.cleaned`
 - `<directory>`: One or more directories, for which the reordering should be performed
 
 ## Config
+
+Each explicitly specified directory needs its own config saved in `imports.json`. The config has the following properties:
 
 - `include`: Array of regex strings the filenames are tested against. Files are excluded unless specified.
 - `exclude`: Array of regex strings the filenames are tested against. Directories are included unless specified.
@@ -24,10 +26,10 @@ Run `sort-imports` with the following parameters:
   - `space`: Number or Object. If number, specifies the number of empty lines to insert after this group. Overrides global space settings
     - `before`: Number or Object. If number, specifies the number of empty lines before the group
         - `size`: Number of empty lines
-        - `if`: Expression, which must evaluate to true. See **Expressions**
+        - `if`: Expression, which must evaluate to a boolean. See **Expressions**
     - `after`: Number or Object. If number, specifies the number of empty lines after the group
         - `size`: Number of empty lines
-        - `if`: Expression, which must evaluate to true. See **Expressions**
+        - `if`: Expression, which must evaluate to a boolean. See **Expressions**
 
 ### Example config
 The following JSON object is an example for how the config file could look like. This one applies to Angular2 and Typescript.  Safe it inside the project folder and with the name `imports.json`
